@@ -36,6 +36,12 @@ class HookManager:
                 self._handles.append(
                     module.register_full_backward_hook(self._make_bwd_hook(name))
                 )
+                
+    def clear_stats(self) -> None:
+        """hookは残したままstatsだけ初期化する"""
+        for s in self.stats.values():
+            s.fwd_flops = 0
+            s.bwd_flops = 0
 
     def remove(self) -> None:
         """全hookを解除してstatsをリセット"""
