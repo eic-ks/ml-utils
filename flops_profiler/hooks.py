@@ -57,7 +57,7 @@ class HookManager:
             # input[0]: (batch, in_features)
             batch_size  = input[0].shape[0]
             in_feat     = input[0].shape[1]
-            out_feat    = output[1]
+            out_feat    = output.shape[1] 
             # 積和演算: 掛け算+足し算 → ×2
             flops = 2 * batch_size * in_feat * out_feat
             self.stats[name].fwd_flops += flops
@@ -67,7 +67,8 @@ class HookManager:
         def hook(module, grad_input, grad_output):
             # grad_output[0]: (batch, out_features)　これがHookがかかった層の出力に対する勾配（深い層から流れてくる勾配）
             batch_size  = grad_output[0].shape[0]
-            in_feat     = grad_input[0].shape[1]
+            # in_feat     = grad_input[0].shape[1]
+            in_feat = module.in_features
             out_feat    = grad_output[0].shape[1]
             # ∂L/∂x と ∂L/∂W の2本分の計算のFLOPs
             flops = 2 * 2 * batch_size * in_feat * out_feat
