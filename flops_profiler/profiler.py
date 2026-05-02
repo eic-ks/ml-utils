@@ -18,7 +18,10 @@ class FLOPsProfiler:
 
         profiler.summary()
         stats = profiler.stats  # dict[str, LayerStats] で生データも取得可能
-        profiler.reset      # summary後にリセットするとhookをすべて解除し、そのまま全て削除する
+
+        # その他の機能
+        profiler.reset()      # summary後にリセットするとhookをすべて解除し、そのまま全て削除する
+        profiler.clear_stats()      # hookは残したまま数値だけをリセットする
     """
 
     def __init__(self, model):
@@ -49,3 +52,7 @@ class FLOPsProfiler:
     def reset(self) -> None:
         """hookを解除してstatsをリセット（次のwith profileで再登録される）"""
         self._hook_manager.remove()
+
+    def clear_stats(self) -> None:
+    """hookは維持してstatsだけ0に戻す（エポックをまたぐとき）"""
+    self._hook_manager.clear_stats()
