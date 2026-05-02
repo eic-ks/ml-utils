@@ -36,7 +36,7 @@ class HookManager:
                 self._handles.append(
                     module.register_full_backward_hook(self._make_bwd_hook(name))
                 )
-                
+
     def clear_stats(self) -> None:
         """hookは残したままstatsだけ初期化する"""
         for s in self.stats.values():
@@ -68,7 +68,7 @@ class HookManager:
             # grad_output[0]: (batch, out_features)　これがHookがかかった層の出力に対する勾配（深い層から流れてくる勾配）
             batch_size  = grad_output[0].shape[0]
             in_feat     = grad_input[0].shape[1]
-            out_feat    = grad_output[1]
+            out_feat    = grad_output[0].shape[1]
             # ∂L/∂x と ∂L/∂W の2本分の計算のFLOPs
             flops = 2 * 2 * batch_size * in_feat * out_feat
             self.stats[name].bwd_flops += flops
