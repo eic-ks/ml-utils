@@ -4,50 +4,58 @@ from .hooks import LayerStats
 
 
 def _human_readable(n: int) -> str:
-    """FLOPs数を読みやすい単位に変換"""
+    """数値と単位を分けてタプルで返す"""
     if n >= 1_000_000_000:
-        return f"{n / 1_000_000_000:.2f} GFLOPs"
+        return f"{n / 1_000_000_000:.2f}", "GFLOPs"
     if n >= 1_000_000:
-        return f"{n / 1_000_000:.2f} MFLOPs"
+        return f"{n / 1_000_000:.2f}", "MFLOPs"
     if n >= 1_000:
-        return f"{n / 1_000:.2f} KFLOPs"
-    return f"{n} FLOPs"
+        return f"{n / 1_000:.2f}", "KFLOPs"
+    return f"{n}", "FLOPs"
+
+
+def _fmt(n: int, num_w: int = 8, unit_w: int = 7) -> str:
+    """数値と単位を固定幅で結合する"""
+    num, unit = _human_readable(n)
+    return f"{num:>{num_w}} {unit:<{unit_w}}"
 
 
 def print_summary(stats: dict[str, LayerStats]) -> None:
-    col = [20, 12, 12, 12, 10]
+    # 列幅：Layer名 + FLOPs列3つ（数値+単位固定） + ratio
+    NAME_W  = 20
+    FLOP_W  = 17   # 数値8 + 空白1 + 単位7 = 16、余裕で17
+    RATIO_W = 10
+    TOTAL_W = NAME_W + FLOP_W * 3 + RATIO_W
+
     header = (
-        f"{'Layer':<{col[0]}}"
-        f"{'Fwd FLOPs':>{col[1]}}"
-        f"{'Bwd FLOPs':>{col[2]}}"
-        f"{'Total':>{col[3]}}"
-        f"{'Bwd/Fwd':>{col[4]}}"
+        f"{'Layer':<{NAME_W}}"
+        f"{'Fwd FLOPs':>{FLOP_W}}"
+        f"{'Bwd FLOPs':>{FLOP_W}}"
+        f"{'Total':>{FLOP_W}}"
+        f"{'Bwd/Fwd':>{RATIO_W}}"
     )
-    sep = "-" * sum(col)
 
     print(header)
-    print(sep)
+    print("-" * TOTAL_W)
 
     total_fwd = total_bwd = 0
-    # 各層の順伝播・逆伝播のFLOPs及びTotal FLOPsの算出と表示
     for name, s in stats.items():
         print(
-            f"{name:<{col[0]}}"
-            f"{_human_readable(s.fwd_flops):>{col[1]}}"
-            f"{_human_readable(s.bwd_flops):>{col[2]}}"
-            f"{_human_readable(s.total):>{col[3]}}"
-            f"{s.bwd_fwd_ratio:>{col[4]}.2f}x"
+            f"{name:<{NAME_W}}"
+            f"{_fmt(s.fwd_flops):>{FLOP_W}}"
+            f"{_fmt(s.bwd_flops):>{FLOP_W}}"
+            f"{_fmt(s.total):>{FLOP_W}}"
+            f"{s.bwd_fwd_ratio:>{RATIO_W}.2f}x"
         )
         total_fwd += s.fwd_flops
         total_bwd += s.bwd_flops
 
-    # Total FLOPsの算出と表示
     total = total_fwd + total_bwd
-    print("=" * sum(col))
+    print("=" * TOTAL_W)
     print(
-        f"{'Total':<{col[0]}}"
-        f"{_human_readable(total_fwd):>{col[1]}}"
-        f"{_human_readable(total_bwd):>{col[2]}}"
-        f"{_human_readable(total):>{col[3]}}"
-        f"{(total_bwd / total_fwd if total_fwd > 0 else 0):>{col[4]}.2f}x"
+        f"{'Total':<{NAME_W}}"
+        f"{_fmt(total_fwd):>{FLOP_W}}"
+        f"{_fmt(total_bwd):>{FLOP_W}}"
+        f"{_fmt(total):>{FLOP_W}}"
+        f"{(total_bwd / total_fwd if total_fwd > 0 else 0):>{RATIO_W}.2f}x"
     )
