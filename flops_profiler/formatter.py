@@ -29,6 +29,7 @@ def print_summary(stats: dict[str, LayerStats]) -> None:
     print(sep)
 
     total_fwd = total_bwd = 0
+    # 各層の順伝播・逆伝播のFLOPs及びTotal FLOPsの算出と表示
     for name, s in stats.items():
         print(
             f"{name:<{col[0]}}"
@@ -40,6 +41,7 @@ def print_summary(stats: dict[str, LayerStats]) -> None:
         total_fwd += s.fwd_flops
         total_bwd += s.bwd_flops
 
+    # Total FLOPsの算出と表示
     total = total_fwd + total_bwd
     print("=" * sum(col))
     print(
