@@ -54,5 +54,5 @@ class FLOPsProfiler:
         self._hook_manager.remove()
 
     def clear_stats(self) -> None:
-    """hookは維持してstatsだけ0に戻す（エポックをまたぐとき）"""
-    self._hook_manager.clear_stats()
+        """hookは維持してstatsだけ0に戻す（エポックをまたぐとき）"""
+        self._hook_manager.clear_stats()

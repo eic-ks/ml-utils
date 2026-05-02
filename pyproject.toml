@@ -1,6 +1,8 @@
 [build-system]
 requires = ["setuptools>=61.0"]
-build-backend = "setuptools.backends.legacy:build"
+# 古い環境では動かない
+# build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta" 
 
 [project]
 name = "flops_profiler"
