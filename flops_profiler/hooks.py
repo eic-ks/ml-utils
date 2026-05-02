@@ -59,11 +59,11 @@ class HookManager:
 
     def _make_bwd_hook(self, name: str):
         def hook(module, grad_input, grad_output):
-            # grad_output[0]: (batch, out_features)　これがその層の出力に対する勾配（深い層から流れてくる勾配）
+            # grad_output[0]: (batch, out_features)　これがHookがかかった層の出力に対する勾配（深い層から流れてくる勾配）
             batch_size  = grad_output[0].shape[0]
             in_feat     = grad_input[0].shape[1]
             out_feat    = grad_output[1]
-            # ∂L/∂x と ∂L/∂W の2本分
+            # ∂L/∂x と ∂L/∂W の2本分の計算のFLOPs
             flops = 2 * 2 * batch_size * in_feat * out_feat
             self.stats[name].bwd_flops += flops
         return hook
